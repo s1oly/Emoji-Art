@@ -8,27 +8,32 @@
 import Foundation
 
 struct EmojiArt {
-    var background : URL?
-    private(set) var emojis = [Emojis]()
+    var background: URL?
+    private(set) var emojis = [Emoji]()
     
-    private var uniqueEmojiID = 0
+    private var uniqueEmojiId = 0
     
-    mutating func addEmoji (_ emoji : String, at postition: Emojis.Position, size : Int){
-        uniqueEmojiID += 1
-        emojis.append(Emojis(string: emoji, position: postition, size: size, id: uniqueEmojiID))
+    mutating func addEmoji(_ emoji: String, at position: Emoji.Position, size: Int) {
+        uniqueEmojiId += 1
+        emojis.append(Emoji(
+            string: emoji,
+            position: position,
+            size: size,
+            id: uniqueEmojiId
+        ))
     }
     
-    struct Emojis : Identifiable {
-        let string : String
-        var position : Position
-        var size : Int
+    struct Emoji: Identifiable {
+        let string: String
+        var position: Position
+        var size: Int
         var id: Int
         
-        struct Position{
-            var x : Int
-            var y : Int
+        struct Position {
+            var x: Int
+            var y: Int
             
-            static let zero = Self(x : 0, y: 0)
+            static let zero = Self(x: 0, y: 0)
         }
     }
 }
