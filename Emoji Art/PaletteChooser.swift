@@ -10,7 +10,7 @@ import Observation
 
 struct PaletteChooser: View {
     
-    @Environment(PaletteStore.self) var store 
+    @Environment(PaletteStore.self) private var store 
     
     var body: some View {
         HStack{
@@ -21,7 +21,7 @@ struct PaletteChooser: View {
     
     var chooser : some View {
         Button {
-            store.cursorIndex += 1
+            store.cursorIndex = store.cursorIndex + 1
         } label:{
             Image(systemName: "paintpalette")
         }

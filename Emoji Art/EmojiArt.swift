@@ -29,7 +29,7 @@ struct EmojiArt {
         var size: Int
         var id: Int
         
-        struct Position {
+        struct Position : Equatable{
             var x: Int
             var y: Int
             

@@ -41,6 +41,12 @@ extension String {
     }
 }
 
+extension Circle{
+    var zeroCircle : Circle{
+        Circle().size(CGSize(width: 0, height: 0)) as! Circle
+    }
+}
+
 extension AnyTransition {
     static let rollUp: AnyTransition = .asymmetric(insertion: .move(edge: .bottom), removal: .move(edge: .top))
     static let rollDown: AnyTransition = .asymmetric(insertion: .move(edge: .top), removal: .move(edge: .bottom))

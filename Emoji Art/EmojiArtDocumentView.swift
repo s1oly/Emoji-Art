@@ -45,6 +45,7 @@ struct EmojiArtDocumentView: View {
     
     @State private var zoom : CGFloat = 0.5
     @State private var pan : CGOffset = .init(width: 100, height: 100)
+    @State private var selected : Set<Int> = []
     @GestureState private var gestureZoom : CGFloat = 1
     @GestureState private var gesturePan : CGOffset = .zero
     
@@ -67,6 +68,7 @@ struct EmojiArtDocumentView: View {
                 pan += value.translation
             }
     }
+        
     
     @ViewBuilder
     private func documentContents(in geometry: GeometryProxy) -> some View{
@@ -75,8 +77,19 @@ struct EmojiArtDocumentView: View {
         ForEach(document.emojis) { emoji in
             Text(emoji.string)
                 .font(emoji.font)
+                .border(selected.contains(emoji.id) ? Color.green : Color.clear, width : 2)
+                .onTapGesture {
+                    if selected.contains(emoji.id){
+                        selected.remove(emoji.id)
+                    }
+                    else{
+                        selected.insert(emoji.id)
+                    }
+                }
                 .position(emoji.position.in(geometry))
+            
         }
+
     }
     
     private func drop(_ sturldatas: [Sturldata], at location: CGPoint, in geometry: GeometryProxy) -> Bool {
@@ -112,5 +125,5 @@ struct EmojiArtDocumentView: View {
 
 #Preview {
     EmojiArtDocumentView(document : EmojiArtDocument())
-        .environment(PaletteStore(named : "Preview"))
+        .environment(PaletteStore(named: "Preview"))
 }

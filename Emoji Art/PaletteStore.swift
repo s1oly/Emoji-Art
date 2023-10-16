@@ -6,10 +6,9 @@
 //
 
 import Foundation
-import Observation
 import SwiftUI
 
-class PaletteStore : Observable{
+@Observable class PaletteStore{
     let name : String
     var palettes : [Palette]{
         didSet{
@@ -17,6 +16,13 @@ class PaletteStore : Observable{
                 palettes = oldValue
             }
         }
+    }
+    
+    private var _cursorIndex = 0
+    
+    var cursorIndex : Int {
+        get{checkPaletteIndex(_cursorIndex)}
+        set{_cursorIndex = checkPaletteIndex(newValue)}
     }
     
     init(named name : String) {
@@ -27,11 +33,6 @@ class PaletteStore : Observable{
         }
     }
     
-    private var _cursorIndex = 0
-    var cursorIndex : Int {
-        get{checkPaletteIndex(_cursorIndex)}
-        set{_cursorIndex = checkPaletteIndex(newValue)}
-    }
     
     private func checkPaletteIndex(_ index : Int) -> Int{
         var index = index % palettes.count
