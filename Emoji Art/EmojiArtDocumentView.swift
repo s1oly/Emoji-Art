@@ -19,10 +19,22 @@ struct EmojiArtDocumentView: View {
     var body: some View {
         VStack(spacing: 0) {
             documentBody
-            PaletteChooser()
+            HStack{
+                PaletteChooser()
+                    .font(.system(size: paletteEmojiSize))
+                    .padding(.horizontal)
+                    .scrollIndicators(.hidden)
+                Spacer()
+                Button {
+                    for emoji in selected{
+                        document.deleteEmoji(emojiID: emoji)
+                    }
+                } label:{
+                    Image(systemName: "trash")
+                }
                 .font(.system(size: paletteEmojiSize))
                 .padding(.horizontal)
-                .scrollIndicators(.hidden)
+            }
         }
     }
     
@@ -55,7 +67,7 @@ struct EmojiArtDocumentView: View {
                 gestureZoom *= inMotionPinchScale
             }
             .onEnded{ endingPinchScale in
-                zoom *= endingPinchScale
+                    zoom *= endingPinchScale
             }
     }
     
@@ -65,19 +77,31 @@ struct EmojiArtDocumentView: View {
                 gesturePan = inMotionOffset.translation
             }
             .onEnded{value in
-                pan += value.translation
+                    pan += value.translation
             }
     }
-        
+    
     
     @ViewBuilder
     private func documentContents(in geometry: GeometryProxy) -> some View{
-        AsyncImage(url: document.background)
-            .position(Emoji.Position.zero.in(geometry))
+        AsyncImage(url: document.background){phase in
+            if let image = phase.image{
+                image
+            }else if let url = document.background{
+                if phase.error != nil{
+                    Text("\(url)")
+                }
+            }
+        }
+        .position(Emoji.Position.zero.in(geometry))
+        .onTapGesture {
+            selected.removeAll()
+        }
         ForEach(document.emojis) { emoji in
             Text(emoji.string)
                 .font(emoji.font)
                 .border(selected.contains(emoji.id) ? Color.green : Color.clear, width : 2)
+                .position(emoji.position.in(geometry))
                 .onTapGesture {
                     if selected.contains(emoji.id){
                         selected.remove(emoji.id)
@@ -86,10 +110,9 @@ struct EmojiArtDocumentView: View {
                         selected.insert(emoji.id)
                     }
                 }
-                .position(emoji.position.in(geometry))
             
         }
-
+        
     }
     
     private func drop(_ sturldatas: [Sturldata], at location: CGPoint, in geometry: GeometryProxy) -> Bool {

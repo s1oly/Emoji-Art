@@ -8,13 +8,38 @@
 import Foundation
 import SwiftUI
 
+extension UserDefaults{
+    func palette(forKey key : String) -> [Palette]{
+        if let jsonData = data(forKey: key),
+           let decodeddPalettes = try? JSONDecoder().decode([Palette].self, from: jsonData){
+            return decodeddPalettes
+        }else{
+            return []
+        }
+    }
+    
+    func set(_ palettes : [Palette], forKey key : String){
+        let data = try? JSONEncoder().encode(palettes)
+        set(data, forKey: key)
+    }
+}
+
 @Observable class PaletteStore{
     let name : String
+    
+    
+    private var userDefaultKey : String {"Pallete Store : " + name}
+    
+    
     var palettes : [Palette]{
-        didSet{
-            if palettes.isEmpty, !oldValue.isEmpty{
-                palettes = oldValue
+        get{
+            UserDefaults.standard.palette(forKey : name)
+        }
+        set{
+            if !newValue.isEmpty    {
+                UserDefaults.standard.set(newValue, forKey: name)
             }
+           
         }
     }
     
@@ -27,9 +52,11 @@ import SwiftUI
     
     init(named name : String) {
         self.name = name;
-        self.palettes = Palette.builtins
-        if palettes.isEmpty {
-            palettes  = [Palette(name : "Warning", emojis: "❌")]
+        if palettes.isEmpty{
+            self.palettes = Palette.builtins
+            if palettes.isEmpty {
+                palettes  = [Palette(name : "Warning", emojis: "❌")]
+            }
         }
     }
     
