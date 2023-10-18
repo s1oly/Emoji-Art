@@ -5,65 +5,74 @@
 //  Created by S1OLY on 10/7/23.
 //
 
-import Foundation
 import SwiftUI
 
-extension UserDefaults{
-    func palette(forKey key : String) -> [Palette]{
+extension UserDefaults {
+    func palettes(forKey key: String) -> [Palette] {
         if let jsonData = data(forKey: key),
-           let decodeddPalettes = try? JSONDecoder().decode([Palette].self, from: jsonData){
-            return decodeddPalettes
-        }else{
+           let decodedPalettes = try? JSONDecoder().decode([Palette].self, from: jsonData) {
+            return decodedPalettes
+        } else {
             return []
         }
     }
-    
-    func set(_ palettes : [Palette], forKey key : String){
+    func set(_ palettes: [Palette], forKey key: String) {
         let data = try? JSONEncoder().encode(palettes)
         set(data, forKey: key)
     }
 }
 
-@Observable class PaletteStore{
-    let name : String
+extension PaletteStore : Hashable{
+    static func == (lhs: PaletteStore, rhs: PaletteStore) -> Bool {
+        lhs.name == rhs.name
+    }
     
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
     
-    private var userDefaultKey : String {"Pallete Store : " + name}
+}
+
+class PaletteStore: ObservableObject, Identifiable {
+    let name: String
     
+    var id : String {name}
     
-    var palettes : [Palette]{
-        get{
-            UserDefaults.standard.palette(forKey : name)
+    private var userDefaultsKey: String { "PaletteStore:" + name }
+    
+    var palettes: [Palette] {
+        get {
+            UserDefaults.standard.palettes(forKey: userDefaultsKey)
         }
-        set{
-            if !newValue.isEmpty    {
-                UserDefaults.standard.set(newValue, forKey: name)
+        set {
+            if !newValue.isEmpty {
+                UserDefaults.standard.set(newValue, forKey: userDefaultsKey)
+                objectWillChange.send()
             }
-           
         }
     }
     
-    private var _cursorIndex = 0
-    
-    var cursorIndex : Int {
-        get{checkPaletteIndex(_cursorIndex)}
-        set{_cursorIndex = checkPaletteIndex(newValue)}
-    }
-    
-    init(named name : String) {
-        self.name = name;
-        if palettes.isEmpty{
-            self.palettes = Palette.builtins
+    init(named name: String) {
+        self.name = name
+        if palettes.isEmpty {
+            palettes = Palette.builtins
             if palettes.isEmpty {
-                palettes  = [Palette(name : "Warning", emojis: "❌")]
+                palettes = [Palette(name: "Warning", emojis: "⚠️")]
             }
         }
     }
     
+    @Published private var _cursorIndex = 0
     
-    private func checkPaletteIndex(_ index : Int) -> Int{
+    var cursorIndex: Int {
+        get { boundsCheckedPaletteIndex(_cursorIndex) }
+        set { _cursorIndex = boundsCheckedPaletteIndex(newValue) }
+    }
+    
+    
+    private func boundsCheckedPaletteIndex(_ index: Int) -> Int {
         var index = index % palettes.count
-        if index < 0{
+        if index < 0 {
             index += palettes.count
         }
         return index
@@ -77,7 +86,7 @@ extension UserDefaults{
     // it does not "remedy" existing duplication, it just does not "cause" new duplication
     
     func insert(_ palette: Palette, at insertionIndex: Int? = nil) { // "at" default is cursorIndex
-        let insertionIndex = checkPaletteIndex(insertionIndex ?? cursorIndex)
+        let insertionIndex = boundsCheckedPaletteIndex(insertionIndex ?? cursorIndex)
         if let index = palettes.firstIndex(where: { $0.id == palette.id }) {
             palettes.move(fromOffsets: IndexSet([index]), toOffset: insertionIndex)
             palettes.replaceSubrange(insertionIndex...insertionIndex, with: [palette])

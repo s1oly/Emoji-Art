@@ -38,12 +38,15 @@ struct EmojiArt : Codable {
     }
     
     mutating func deleteEmoji(emojiID : Emoji.ID){
-        for i in emojis.indices{
-                if emojis[i].id == emojiID{
-                emojis.remove(at: i)
+        if(emojis.count > 0){
+            for emoji in emojis{
+                if emoji.id == emojiID{
+                    emojis.removeAll(where: {$0.id == emoji.id})
+                }
             }
         }
     }
+    
     
     
     struct Emoji: Identifiable, Codable {

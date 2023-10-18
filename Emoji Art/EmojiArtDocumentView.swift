@@ -53,8 +53,6 @@ struct EmojiArtDocumentView: View {
         }
     }
     
-    
-    
     @State private var zoom : CGFloat = 0.5
     @State private var pan : CGOffset = .init(width: 100, height: 100)
     @State private var selected : Set<Int> = []
@@ -148,5 +146,5 @@ struct EmojiArtDocumentView: View {
 
 #Preview {
     EmojiArtDocumentView(document : EmojiArtDocument())
-        .environment(PaletteStore(named: "Preview"))
+        .environmentObject(PaletteStore(named: "Preview"))
 }
